@@ -46,8 +46,6 @@ malaysia_coord_box = [100,1, 119,7]
 dengue_malay = 'denggi'
 malaysia_dengue = [dengue_malay]
 
--55.891504, -67.342126
-
 india_dengue = [dengue_punjabi, dengue_en_upper, dengue_hindi, dengue_tamil,\
                 dengue_telugu, dengue_marathi, dengue_kannada, dengue_malayalam,\
                 dengue_gujarati, dengue_bengali]
