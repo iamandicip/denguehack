@@ -44,6 +44,7 @@ def is_dengue_tweet(tweet):
     return False
 
 def has_location_data(tweet):
+    # return True
     return tweet['place'] != None or tweet['coordinates'] != None
 
 """
