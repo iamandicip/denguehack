@@ -26,7 +26,7 @@ regex_str = [
 tokens_re = re.compile(r'('+'|'.join(regex_str)+')', re.VERBOSE | re.IGNORECASE)
 emoticon_re = re.compile(r'^'+emoticons_str+'$', re.VERBOSE | re.IGNORECASE)
 
-india_coord_box = [69.645311, 5.611202, 88.457192, 33.152259]
+india_coord_box = [69.645311,5.611202, 88.457192,5.611202, 88.457192,33.152259, 69.645311,33.152259]
 
 #all the official languages in India
 dengue_punjabi = 'dengue'
@@ -40,6 +40,17 @@ dengue_malayalam = 'ഡെങ്കിപ്പനി'
 dengue_gujarati = 'ડેન્ગ્યુ'
 dengue_bengali = 'ডেঙ্গু'
 
+#6.987950, 116.729379
+
+malaysia_coord_box = [100,1, 119,7]
+dengue_malay = 'denggi'
+malaysia_dengue = [dengue_malay]
+
+-55.891504, -67.342126
+
 india_dengue = [dengue_punjabi, dengue_en_upper, dengue_hindi, dengue_tamil,\
                 dengue_telugu, dengue_marathi, dengue_kannada, dengue_malayalam,\
                 dengue_gujarati, dengue_bengali]
+
+dengue_south_america = ['dengue']
+south_central_america_box = [-117.115903, -56, -67.342126, 32.546066]

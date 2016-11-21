@@ -21,8 +21,8 @@ class TwitterDataExtractor:
         dataStream.filter(track = params['search_terms'], locations = params['locations'], async = False)
 
 if __name__== '__main__':
-    params = {'search_terms' : uc.india_dengue,\
-              'locations' : uc.india_coord_box}
+    params = {'search_terms' : uc.dengue_south_america,\
+              'locations' : uc.south_central_america_box}
 
     tde = TwitterDataExtractor()
     tde.collect_tweets(params)

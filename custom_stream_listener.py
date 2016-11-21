@@ -12,12 +12,17 @@ class CustomStreamListener(StreamListener):
     def on_data(self, data):
         try:
             with open(uc.tweets_file_name, 'a') as fp:
-                fp.write(data)
+                json_tweet = json.loads(data)
 
-                self.counter += 1
+                if is_dengue_tweet(json_tweet) and has_location_data(json_tweet):
+                    # print(json.dumps(json_tweet, sort_keys=True, indent=2))
 
-                if self.counter % 10 == 0:
-                    print('Collected {0} tweets'.format(self.counter))
+                    fp.write(data)
+
+                    self.counter += 1
+
+                    if self.counter % 5 == 0:
+                        print('Collected {0} tweets'.format(self.counter))
 
             return True
         except BaseException as e:
@@ -28,6 +33,18 @@ class CustomStreamListener(StreamListener):
         if status_code == 420:
             #returning False in on_data disconnects the stream
             return False
+
+
+def is_dengue_tweet(tweet):
+    keywords = uc.dengue_south_america
+    for k in keywords:
+        if k in tweet['text'].lower():
+            return True
+
+    return False
+
+def has_location_data(tweet):
+    return tweet['place'] != None or tweet['coordinates'] != None
 
 """
     def convert_tweet_to_csv(self, tweet):
