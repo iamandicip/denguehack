@@ -19,6 +19,7 @@ class TwitterDataSearcher:
         dt_max = 15 * 60 * 1000
         initial_dt = datetime.now().microsecond * 1000
         current_dt = initial_dt
+        file_name = 'historical_tweets.json'
 
         print('Collecting tweets')
         #authentication
@@ -26,7 +27,9 @@ class TwitterDataSearcher:
         auth.set_access_token(private_tokens.access_token, private_tokens.access_secret)
         api = tweepy.API(auth)
 
-        with open('historical_tweets.json', 'a') as f:
+        last_id = self.find_last_id(file_name)
+
+        with open(file_name, 'a') as f:
 
             # for tweet in tweepy.Cursor(api.search,
                                     #    q=search_params['q'],\
@@ -72,6 +75,19 @@ class TwitterDataSearcher:
 
                     if tweets_count % 10 == 0:
                         print('Collected {0} tweets'.format(tweets_count))
+
+    def find_last_id(self, file_name):
+        max_id = -1
+        with open(file_name, 'r') as f:
+            ids = []
+            for line in f:
+                tweet = json.loads(line)
+                ids.append(tweet['id'])
+            unique_ids = set(ids)
+            max_id = max(unique_ids)
+
+        print('Last tweet id is {0}'.format(max_id))
+        return max_id
 
     def is_dengue_tweet(self, tweet):
         keywords = ['dengue', 'Dengue', 'dengosa']
