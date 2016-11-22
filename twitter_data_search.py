@@ -15,7 +15,7 @@ class TwitterDataSearcher:
         last_id = -1
         tweets_count = 0
         call_count = 0
-        call_count_max = 180
+        call_count_max = 50
         file_name = 'historical_tweets.json'
 
         print('Collecting tweets')
@@ -29,18 +29,7 @@ class TwitterDataSearcher:
 
         with open(file_name, 'a') as f:
 
-            # for tweet in tweepy.Cursor(api.search,
-                                    #    q=search_params['q'],\
-                                    #    geocode=search_params['geocode'],\
-                                    #    include_entities=False,\
-                                    #    rpp=100).items():
-                # call_count += 1
-
             while call_count < call_count_max:
-                # results = api.search(search_params['q'], \
-                                    #  geocode=search_params['geocode'], \
-                                    #  count=200, since_id=24012619984051000, \
-                                    #  max_id=str(last_id - 1))
                 try:
                     new_tweets = api.search(q=search_params['q'], \
                                             geocode=search_params['geocode'],\
@@ -49,12 +38,24 @@ class TwitterDataSearcher:
 
                     call_count += 1
 
+                    print('call count: {0}'.format(call_count))
+
                     if not new_tweets:
                         print('Exiting because of no new tweets')
                         break
 
-                    searched_tweets.extend(new_tweets)
-                    last_id = new_tweets[-1].id
+                    else:
+                        last_id = new_tweets[-1].id
+
+                        for tweet in new_tweets:
+                            if self.is_dengue_tweet(tweet) and self.has_location_data(tweet) and tweet.id > last_saved_id:
+                                # print(tweet.place)
+                                # print(tweet.coordinates)
+                                f.write(json.dumps(tweet._json)+ '\n')
+                                tweets_count += 1
+
+                                if tweets_count % 10 == 0:
+                                    print('Collected {0} tweets'.format(tweets_count))
 
                 except tweepy.TweepError as e:
                     # depending on TweepError.code, one may want to retry or wait
@@ -62,32 +63,19 @@ class TwitterDataSearcher:
                     print(e)
                     break
 
-
-            for tweet in searched_tweets:
-                if self.is_dengue_tweet(tweet) and self.has_location_data(tweet) and tweet.id > last_saved_id:
-                    # print(tweet.place)
-                    # print(tweet.coordinates)
-                    f.write(json.dumps(tweet._json)+ '\n')
-                    tweets_count += 1
-
-                    if tweets_count % 10 == 0:
-                        print('Collected {0} tweets'.format(tweets_count))
-
     def find_last_id(self, file_name):
         max_id = -1
         with open(file_name, 'r') as f:
-            ids = []
             for line in f:
                 tweet = json.loads(line)
-                ids.append(tweet['id'])
-            unique_ids = set(ids)
-            max_id = max(unique_ids)
+                if tweet['id'] > max_id:
+                    max_id = tweet['id']
 
         print('Last saved tweet id in {0} is {1}'.format(file_name, max_id))
         return max_id
 
     def is_dengue_tweet(self, tweet):
-        keywords = ['dengue', 'Dengue', 'dengosa']
+        keywords = ['dengue', 'Dengue', 'dengosa', 'Dengosa']
         for k in keywords:
             if k in tweet.text:
                 return True
@@ -99,8 +87,9 @@ class TwitterDataSearcher:
         return tweet.place != None or tweet.coordinates != None
 
 if __name__== '__main__':
-    search_params = {'q' : 'dengue OR Dengue OR dengosa',
-                     'geocode' : '-10,-56,3000km'}
+    #not sure if search query is case sensitive
+    search_params = {'q' : 'dengue OR Dengue OR dengosa or Dengosa',
+                     'geocode' : '-10,-56,5000km'}
 
     tds = TwitterDataSearcher()
     tds.search_and_collect_tweets(search_params)
