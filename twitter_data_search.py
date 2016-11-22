@@ -7,7 +7,6 @@ import custom_stream_listener
 import util_constants as uc
 from datetime import datetime
 
-
 class TwitterDataSearcher:
 
     def search_and_collect_tweets(self, params):
@@ -24,7 +23,9 @@ class TwitterDataSearcher:
         auth.set_access_token(private_tokens.access_token, private_tokens.access_secret)
         api = tweepy.API(auth)
 
-        last_id = self.find_last_id(file_name)
+        saved_ids = self.get_saved_tweets_ids(file_name)
+
+        last_id = self.find_last_id(saved_ids)
         last_saved_id = last_id
 
         with open(file_name, 'a') as f:
@@ -33,8 +34,11 @@ class TwitterDataSearcher:
                 try:
                     new_tweets = api.search(q=search_params['q'], \
                                             geocode=search_params['geocode'],\
-                                            count=200, max_id=str(last_id - 1),\
-                                            since_id=24012619984051000)
+                                            count=200, \
+                                            # max_id=str(last_id - 1),\
+                                            # since_id=24012619984051000\
+                                            since_id=0\
+                                            )
 
                     call_count += 1
 
@@ -48,7 +52,7 @@ class TwitterDataSearcher:
                         last_id = new_tweets[-1].id
 
                         for tweet in new_tweets:
-                            if self.is_dengue_tweet(tweet) and self.has_location_data(tweet) and tweet.id > last_saved_id:
+                            if self.is_dengue_tweet(tweet) and self.has_location_data(tweet) and tweet.id not in saved_ids:
                                 # print(tweet.place)
                                 # print(tweet.coordinates)
                                 f.write(json.dumps(tweet._json)+ '\n')
@@ -63,15 +67,20 @@ class TwitterDataSearcher:
                     print(e)
                     break
 
-    def find_last_id(self, file_name):
-        max_id = -1
+    def get_saved_tweets_ids(self, file_name):
+        ids = []
         with open(file_name, 'r') as f:
             for line in f:
                 tweet = json.loads(line)
-                if tweet['id'] > max_id:
-                    max_id = tweet['id']
+                ids.append(tweet['id'])
 
-        print('Last saved tweet id in {0} is {1}'.format(file_name, max_id))
+        print('There are {0} already saved tweets in file {1}'.format(len(ids), file_name))
+
+        return ids
+
+    def find_last_id(self, ids):
+        max_id = max(ids)
+        print('Last saved tweet id is {0}'.format(max_id))
         return max_id
 
     def is_dengue_tweet(self, tweet):
