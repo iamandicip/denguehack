@@ -11,10 +11,10 @@ class CustomStreamListener(StreamListener):
 
     def on_data(self, data):
         try:
-            with open(uc.tweets_file_name, 'a') as fp:
+            with open('rt_tweets.json', 'a') as fp:
                 json_tweet = json.loads(data)
 
-                if is_dengue_tweet(json_tweet) and has_location_data(json_tweet):
+                if self.is_dengue_tweet(json_tweet) and self.has_location_data(json_tweet):
                     # print(json.dumps(json_tweet, sort_keys=True, indent=2))
 
                     fp.write(data)
@@ -35,17 +35,17 @@ class CustomStreamListener(StreamListener):
             return False
 
 
-def is_dengue_tweet(tweet):
-    keywords = uc.dengue_south_america
-    for k in keywords:
-        if k in tweet['text'].lower():
-            return True
+    def is_dengue_tweet(self, tweet):
+        keywords = ['dengue', 'Dengue', 'dengosa']
+        for k in keywords:
+            if k in tweet['text']:
+                return True
 
-    return False
+        return False
 
-def has_location_data(tweet):
-    # return True
-    return tweet['place'] != None or tweet['coordinates'] != None
+    def has_location_data(self, tweet):
+        # return True
+        return tweet['place'] != None or tweet['coordinates'] != None
 
 """
     def convert_tweet_to_csv(self, tweet):
