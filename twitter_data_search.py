@@ -16,9 +16,6 @@ class TwitterDataSearcher:
         tweets_count = 0
         call_count = 0
         call_count_max = 180
-        dt_max = 15 * 60 * 1000
-        initial_dt = datetime.now().microsecond * 1000
-        current_dt = initial_dt
         file_name = 'historical_tweets.json'
 
         print('Collecting tweets')
@@ -28,6 +25,7 @@ class TwitterDataSearcher:
         api = tweepy.API(auth)
 
         last_id = self.find_last_id(file_name)
+        last_saved_id = last_id
 
         with open(file_name, 'a') as f:
 
@@ -38,13 +36,11 @@ class TwitterDataSearcher:
                                     #    rpp=100).items():
                 # call_count += 1
 
-            while (current_dt - initial_dt < dt_max) or (call_count < call_count_max):
+            while call_count < call_count_max:
                 # results = api.search(search_params['q'], \
                                     #  geocode=search_params['geocode'], \
                                     #  count=200, since_id=24012619984051000, \
                                     #  max_id=str(last_id - 1))
-                current_dt = datetime.now().microsecond * 1000
-
                 try:
                     new_tweets = api.search(q=search_params['q'], \
                                             geocode=search_params['geocode'],\
@@ -54,7 +50,7 @@ class TwitterDataSearcher:
                     call_count += 1
 
                     if not new_tweets:
-                        print('Existing because of no new tweets')
+                        print('Exiting because of no new tweets')
                         break
 
                     searched_tweets.extend(new_tweets)
@@ -66,8 +62,9 @@ class TwitterDataSearcher:
                     print(e)
                     break
 
+
             for tweet in searched_tweets:
-                if self.is_dengue_tweet(tweet) and self.has_location_data(tweet):
+                if self.is_dengue_tweet(tweet) and self.has_location_data(tweet) and tweet.id > last_saved_id:
                     # print(tweet.place)
                     # print(tweet.coordinates)
                     f.write(json.dumps(tweet._json)+ '\n')
@@ -86,7 +83,7 @@ class TwitterDataSearcher:
             unique_ids = set(ids)
             max_id = max(unique_ids)
 
-        print('Last tweet id is {0}'.format(max_id))
+        print('Last saved tweet id in {0} is {1}'.format(file_name, max_id))
         return max_id
 
     def is_dengue_tweet(self, tweet):
