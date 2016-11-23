@@ -37,7 +37,7 @@ class TwitterDataSearcher:
                                             count=200, \
                                             # max_id=str(last_id - 1),\
                                             # since_id=24012619984051000\
-                                            since_id=0\
+                                            since_id=last_saved_id\
                                             )
 
                     call_count += 1
