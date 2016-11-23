@@ -12,7 +12,7 @@ class CustomStreamListener(StreamListener):
 
     def on_data(self, data):
         try:
-            with open(real_time_tweets_file, 'a') as fp:
+            with open(self.real_time_tweets_file, 'a') as fp:
                 json_tweet = json.loads(data)
 
                 if self.is_dengue_tweet(json_tweet) and self.has_location_data(json_tweet):
@@ -40,7 +40,7 @@ class CustomStreamListener(StreamListener):
             for k in keywords:
                 if k in tweet['text']:
                     return True
-        except Exception e:
+        except Exception as e:
             print(e)
 
         return False
