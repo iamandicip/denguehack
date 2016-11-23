@@ -16,14 +16,26 @@ class TwitterOldTweetsExtractor:
         .setRadius(params['radius'])\
         .setMaxTweets(params['max_tweets'])
 
+        tweets_count = 0
+
         saved_ids = self.get_saved_tweets_ids(file_name)
+
+        oldest_tweet_date = ''
 
         for tweet in TweetManager.getTweets(tweetCriteria):
             if self.has_location_data(tweet) and tweet.id not in saved_ids:
                 with open(file_name, 'a') as f:
                     f.write(self.tweeet_to_string(tweet) + '\n')
 
-                print('{0}\t{1}\t{2}'.format(tweet.date, tweet.geo, tweet.text))
+                oldest_tweet_date = tweet.formatted_date
+
+                tweets_count += 1
+
+                if tweets_count % 10 == 0:
+                    print('Collected {0} tweets'.format(tweets_count))
+
+        print('Reached the limit of {0} searched tweets'.format(params['max_tweets']))
+        print('Oldest saved tweet date is : {0}'.format(oldest_tweet_date))
 
     def has_location_data(self, tweet):
         return tweet.geo != None and tweet.geo.strip() != ''
@@ -53,9 +65,9 @@ class TwitterOldTweetsExtractor:
 
 
 if __name__ == '__main__':
-    search_params = {'keyword' : 'dengue OR Dengue OR dengosa OR Dengosa',\
+    search_params = {'keyword' : 'dengue OR Dengue',\
                      'since' : '2016-09-01',\
-                     'until' : '2016-11-23',\
+                     'until' : '2016-11-17',\
                      'location' : 'Alta Floresta, Brazil',\
                      'radius' : '3000km',\
                      'max_tweets' : 9999}
