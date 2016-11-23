@@ -7,16 +7,16 @@ import util_constants as uc
 
 class CustomStreamListener(StreamListener):
 
+    real_time_tweets_file = 'rt_tweets.json'
     counter = 0
 
     def on_data(self, data):
         try:
-            with open('rt_tweets.json', 'a') as fp:
+            with open(real_time_tweets_file, 'a') as fp:
                 json_tweet = json.loads(data)
 
                 if self.is_dengue_tweet(json_tweet) and self.has_location_data(json_tweet):
                     # print(json.dumps(json_tweet, sort_keys=True, indent=2))
-
                     fp.write(data)
 
                     self.counter += 1
@@ -34,12 +34,14 @@ class CustomStreamListener(StreamListener):
             #returning False in on_data disconnects the stream
             return False
 
-
     def is_dengue_tweet(self, tweet):
-        keywords = ['dengue', 'Dengue', 'dengosa']
-        for k in keywords:
-            if k in tweet['text']:
-                return True
+        try:
+            keywords = ['dengue', 'Dengue', 'dengosa']
+            for k in keywords:
+                if k in tweet['text']:
+                    return True
+        except Exception e:
+            print(e)
 
         return False
 
