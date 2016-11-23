@@ -34,7 +34,6 @@ class TwitterDataSearcher:
                 try:
                     new_tweets = api.search(q=search_params['q'], \
                                             geocode=search_params['geocode'],\
-                                            count=200, \
                                             # max_id=str(last_id - 1),\
                                             # since_id=24012619984051000\
                                             since_id=last_saved_id\
