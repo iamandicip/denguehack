@@ -30,8 +30,10 @@ class TwitterOldTweetsExtractor:
             if self.has_location_data(tweet) and tweet.id not in saved_ids:
                 with open(file_name, 'a', encoding='utf8') as f:
                     try:
-                        f.write(self.tweeet_to_string(tweet, geo_locator) + '\n')
-                        oldest_tweet_date = tweet.date
+                        tweet_string = self.tweeet_to_string(tweet, geo_locator)
+                        if tweet_string:
+                            f.write(tweet_string + '\n')
+                            oldest_tweet_date = tweet.date
 
                         tweets_count += 1
                     except Exception as e:
@@ -56,13 +58,13 @@ class TwitterOldTweetsExtractor:
         if tweet.geo:
             lat_long = geo_locator.get_coordinates_for_location(tweet.geo)
 
-            if lat_long is not None:
+            if lat_long:
                 attributes = ['"' + str(tweet.id) + '"', \
                               '"' + str(tweet.date) + '"', \
-                              '"' + tweet.geo + '"',\
+                              '"' + str(tweet.geo) + '"',\
                               '"' + str(lat_long[0]) + '"',\
                               '"' + str(lat_long[1]) + '"',\
-                              '"' + tweet.text + '"']
+                              '"' + str(tweet.text) + '"']
 
                 result = ','.join(attributes)
 
@@ -85,7 +87,7 @@ class TwitterOldTweetsExtractor:
 if __name__ == '__main__':
     search_params = {'keyword' : 'dengue OR Dengue',\
                      'since' : '2016-09-01',\
-                     'until' : '2016-10-25',\
+                     'until' : '2016-10-09',\
                      'location' : 'Alta Floresta, Brazil',\
                      'radius' : '3000km',\
                      'max_tweets' : 9999}
