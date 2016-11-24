@@ -86,8 +86,8 @@ class TwitterOldTweetsExtractor:
 
 if __name__ == '__main__':
     search_params = {'keyword' : 'dengue OR Dengue',\
-                     'since' : '2016-09-01',\
-                     'until' : '2016-10-09',\
+                     'since' : '2016-31-08',\
+                     'until' : '2016-09-01',\
                      'location' : 'Alta Floresta, Brazil',\
                      'radius' : '3000km',\
                      'max_tweets' : 9999}
