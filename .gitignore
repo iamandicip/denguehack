@@ -3,3 +3,4 @@
 .idea
 le/private_tokens.py
 le/__pycache__
+le/*.csv
