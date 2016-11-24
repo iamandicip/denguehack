@@ -47,23 +47,26 @@ class TwitterOldTweetsExtractor:
         return tweet.geo != None and tweet.geo.strip() != ''
 
     def tweeet_to_string(self, tweet, geo_locator):
-        attributes = []
+        result = None
 
         if tweet.text:
             tweet.text = re.sub('"', '', tweet.text)
             tweet.text = re.sub(',', '', tweet.text)
 
         if tweet.geo:
-            lat, lng = geo_locator.get_coordinates_for_location(tweet.geo)
+            lat_long = geo_locator.get_coordinates_for_location(tweet.geo)
 
-            attributes = ['"' + str(tweet.id) + '"', \
-                          '"' + str(tweet.date) + '"', \
-                          '"' + tweet.geo + '"',\
-                          '"' + str(lat) + '"',\
-                          '"' + str(lng) + '"',\
-                          '"' + tweet.text + '"']
+            if lat_long is not None:
+                attributes = ['"' + str(tweet.id) + '"', \
+                              '"' + str(tweet.date) + '"', \
+                              '"' + tweet.geo + '"',\
+                              '"' + str(lat_long[0]) + '"',\
+                              '"' + str(lat_long[1]) + '"',\
+                              '"' + tweet.text + '"']
 
-        return ','.join(attributes)
+                result = ','.join(attributes)
+
+        return result
 
     def get_saved_tweets_ids(self, file_name):
         ids = []
@@ -82,7 +85,7 @@ class TwitterOldTweetsExtractor:
 if __name__ == '__main__':
     search_params = {'keyword' : 'dengue OR Dengue',\
                      'since' : '2016-09-01',\
-                     'until' : '2016-11-17',\
+                     'until' : '2016-10-25',\
                      'location' : 'Alta Floresta, Brazil',\
                      'radius' : '3000km',\
                      'max_tweets' : 9999}
