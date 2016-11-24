@@ -32,9 +32,6 @@ class TweetManager:
 				tweetPQ = PyQuery(tweetHTML)
 				tweet = models.Tweet()
 
-				with open('tweets_html.html', 'a') as f:
-					f.write(str(tweetHTML))
-
 				usernameTweet = tweetPQ("span.username.js-action-profile-name b").text();
 				txt = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '#').replace('@ ', '@'));
 				retweets = int(tweetPQ("span.ProfileTweet-action--retweet span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replace(",", ""));

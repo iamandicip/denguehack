@@ -1,13 +1,17 @@
 from got3.manager import TweetCriteria
 from got3.manager import TweetManager
 
+from geo_locator import GeoLocator
+
+import tweepy
+
 import re
 
 class TwitterOldTweetsExtractor:
 
-    def search_and_collect_tweets(self, params):
+    def search_and_collect_tweets(self, params, file_name):
 
-        file_name = 'old_tweets.csv'
+        geo_locator = GeoLocator()
 
         tweetCriteria = TweetCriteria().setQuerySearch(params['keyword'])\
         .setSince(params['since'])\
@@ -20,16 +24,18 @@ class TwitterOldTweetsExtractor:
 
         saved_ids = self.get_saved_tweets_ids(file_name)
 
-        oldest_tweet_date = ''
+        oldest_tweet_date = None
 
         for tweet in TweetManager.getTweets(tweetCriteria):
             if self.has_location_data(tweet) and tweet.id not in saved_ids:
-                with open(file_name, 'a') as f:
-                    f.write(self.tweeet_to_string(tweet) + '\n')
+                with open(file_name, 'a', encoding='utf8') as f:
+                    try:
+                        f.write(self.tweeet_to_string(tweet, geo_locator) + '\n')
+                        oldest_tweet_date = tweet.date
 
-                oldest_tweet_date = tweet.formatted_date
-
-                tweets_count += 1
+                        tweets_count += 1
+                    except Exception as e:
+                        print(e)
 
                 if tweets_count % 10 == 0:
                     print('Collected {0} tweets'.format(tweets_count))
@@ -40,22 +46,31 @@ class TwitterOldTweetsExtractor:
     def has_location_data(self, tweet):
         return tweet.geo != None and tweet.geo.strip() != ''
 
-    def tweeet_to_string(self, tweet):
+    def tweeet_to_string(self, tweet, geo_locator):
+        attributes = []
+
         if tweet.text:
             tweet.text = re.sub('"', '', tweet.text)
+            tweet.text = re.sub(',', '', tweet.text)
 
-        attributes = [tweet.id, str(tweet.date), \
-                      '"' + tweet.formatted_date + '"',
-                      '"' + tweet.geo + '"',\
-                      '"' + tweet.text + '"']
+        if tweet.geo:
+            lat, lng = geo_locator.get_coordinates_for_location(tweet.geo)
+
+            attributes = ['"' + str(tweet.id) + '"', \
+                          '"' + str(tweet.date) + '"', \
+                          '"' + tweet.geo + '"',\
+                          '"' + str(lat) + '"',\
+                          '"' + str(lng) + '"',\
+                          '"' + tweet.text + '"']
 
         return ','.join(attributes)
 
     def get_saved_tweets_ids(self, file_name):
         ids = []
-        with open(file_name, 'r') as f:
+        with open(file_name, 'r', encoding='utf8') as f:
             for line in f:
                 tweet_id = line.split(',')[0]
+                tweet_id = re.sub('"', '', tweet_id)
                 if tweet_id.isdigit():
                     ids.append(tweet_id)
 
@@ -72,5 +87,8 @@ if __name__ == '__main__':
                      'radius' : '3000km',\
                      'max_tweets' : 9999}
 
+    file_name = 'old_tweets.csv'
+
     tote = TwitterOldTweetsExtractor()
-    tote.search_and_collect_tweets(search_params)
+
+    tote.search_and_collect_tweets(search_params, file_name)
