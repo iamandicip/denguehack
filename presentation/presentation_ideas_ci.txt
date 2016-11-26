@@ -1,10 +1,21 @@
+Team Stream
+
+Ciprian Iamandi
+studied computer Science
+12 years experience as a software developer and consultant
+started to learn about data science and machine learning in 2016
+
+
 Problem:
-Authorities have a slow response when a Dengue outbreak occurs because of the bureaucracy and time to centralize results. Because of that, the allocation of resources dedicated to fighting Dengue is sub-optimal and not well-timed.
+
+Dengue is not widely recognized as an important disease to be fought in a systematic way.
+The biggest reason for this is probably because the symptoms are not as severe as other similar mosquito transmitted diseases.
+This makes Dengue not so visible to the general public and authorities.
 
 —————————
 
 Solution:
-Real time monitoring and detection of Dengue reports on social media channels
+To increase Dengue visibility to the general public, we propose a method that helps predicting outbreaks in an innovative way that complements the traditional monitoring methods.
 
 —————————
 
@@ -18,10 +29,7 @@ How we solve it:
 Data : 
 - tweets that contain the word ‘Dengue’; source: Twitter.com
 
-To be added:
-- google searches for ‘Dengue’; source: Google.com
-- facebook statuses that contain ‘Dengue’; source: Facebook.com
-
+Process: 
 We collect only the data that has a location attached (only about 10% of the tweets contain location data).
 
 We further filter the tweets and keep only tweets related to personal experience (PET).
@@ -35,7 +43,7 @@ Finally we get a set of tweets which are:
 -geo-localized
 -personal experience tweets
 
-Tweet examples:
+Personal experience tweets examples:
 2016-11-15 00:14:22 - Belo Horizonte, Brazil - “To com dengue pela segunda vez do ano só pq arrumei emprego Odeio minha vida” - “I'm dengue for the second time of the year just because I got a job I hate my life“
 2016-11-08 20:59:32 - Balneário Camboriú, Brasil - “Pelo menos essa dengue me fez emagrecer mais uns quilinhos Haha” - “At least this dengue made me lose a few more pounds Haha”
 2016-11-11 18:52:38 - Tampico, Tamaulipas - “Malditos moscos. Me dio dengue” - “Damn flies. I got dengue“
@@ -44,6 +52,7 @@ With these curated tweets we build potential Dengue hotspots using a machine lea
 -> insert more details here about the algorithm
 
 The output of this algorithm is a list of location based clusters that decay over time.
+The visualisation was made with Luciad and QGis
 -> insert visualization
 
 Confirming that the clusters are correlated with confirmed Dengue cases:
@@ -54,9 +63,41 @@ The correlation between the tweets and the confirmed Dengue cases is -> insert n
 
 Based on the conclusions above, we can conclude that the presence of clusters based on tweets are a good indicator of the real Dengue cases.
 
-Short term predictions
+Challenges:
+-twitter collection data was difficult because of Twitter API limitations on the number of queries per application. 
+-we applied a workaround by scraping the html of the twitter search page
+-geo localization api problems with retrieving geographical coordinates for the location of tweets.
+-lack of accurate Dengue cases reporting
 
 
+Future developments:
+
+Update the clustering algorithm that can use streaming data instead of downloaded data.
+
+Data sources to be added:
+- google searches for ‘Dengue’; source: Google.com
+- facebook statuses that contain ‘Dengue’; source: Facebook.com
+
+Create a web application that enables anybody to check the evolution and emergence of Dengue clusters.
 
 
+Our solution is:
+
+Actionable
+This idea can be implemented into a public, free to use web application that enables anybody to check the evolution and emergence of Dengue clusters.
+
+Because of this, the entry barrier to using the service is very low. People just continue to tweet, search, post.
+The more people report Dengue cases, the more accurate the results of our application will be.
+
+It can help educate the internet users on reporting potential Dengue cases.
+
+Scalable
+It can be extended to monitor any other region with population connected to the Internet.
+It can be applied to monitor other diseases than Dengue.
+
+Sustainable
+This solution queries the data from the internet, processes it and then displays Dengue clusters.
+Therefore, it can run autonomously, without any manual data input/calculations.
+The solution doesn’t store any data that identify users, so their privacy is not threatened.
+It can be easily used by public health institution, NGOs locals, or anybody else with Internet access.
 
