@@ -3,8 +3,9 @@ from got3.manager import TweetManager
 
 from geo_locator import GeoLocator
 
+import pandas as pd
 import tweepy
-
+from datetime import datetime, timedelta
 import re
 
 class TwitterOldTweetsExtractor:
@@ -12,6 +13,8 @@ class TwitterOldTweetsExtractor:
     def search_and_collect_tweets(self, params, file_name):
 
         geo_locator = GeoLocator()
+
+        # print(params)
 
         tweetCriteria = TweetCriteria().setQuerySearch(params['keyword'])\
         .setSince(params['since'])\
@@ -27,7 +30,7 @@ class TwitterOldTweetsExtractor:
         oldest_tweet_date = None
 
         for tweet in TweetManager.getTweets(tweetCriteria):
-            if self.has_location_data(tweet) and tweet.id not in saved_ids:
+            if self.has_dengue_keyword(tweet) and self.has_location_data(tweet) and tweet.id not in saved_ids:
                 with open(file_name, 'a', encoding='utf8') as f:
                     try:
                         tweet_string = self.tweeet_to_string(tweet, geo_locator)
@@ -47,6 +50,9 @@ class TwitterOldTweetsExtractor:
 
     def has_location_data(self, tweet):
         return tweet.geo != None and tweet.geo.strip() != ''
+
+    def has_dengue_keyword(self, tweet):
+        return 'dengue' in tweet.text.lower()
 
     def tweeet_to_string(self, tweet, geo_locator):
         result = None
@@ -72,12 +78,15 @@ class TwitterOldTweetsExtractor:
 
     def get_saved_tweets_ids(self, file_name):
         ids = []
-        with open(file_name, 'r', encoding='utf8') as f:
-            for line in f:
-                tweet_id = line.split(',')[0]
-                tweet_id = re.sub('"', '', tweet_id)
-                if tweet_id.isdigit():
-                    ids.append(tweet_id)
+        try:
+            with open(file_name, 'r', encoding='utf8') as f:
+                for line in f:
+                    tweet_id = line.split(',')[0]
+                    tweet_id = re.sub('"', '', tweet_id)
+                    if tweet_id.isdigit():
+                        ids.append(tweet_id)
+        except Exception as e:
+            print(e)
 
         print('There are {0} already saved tweets in file {1}'.format(len(ids), file_name))
 
@@ -85,15 +94,30 @@ class TwitterOldTweetsExtractor:
 
 
 if __name__ == '__main__':
-    search_params = {'keyword' : 'dengue OR Dengue',\
-                     'since' : '2016-09-01',\
-                     'until' : '2016-10-09',\
-                     'location' : 'Alta Floresta, Brazil',\
-                     'radius' : '3000km',\
-                     'max_tweets' : 9999}
 
-    file_name = 'old_tweets.csv'
+    file_name = 'tweets_until_09.csv'
 
     tote = TwitterOldTweetsExtractor()
 
-    tote.search_and_collect_tweets(search_params, file_name)
+    # rng = pd.date_range(start='2016-01-01', end='2016-01-02', freq='D').tolist()
+    # dates = [str(ts.date) for ts in rng]
+    # print(rng)
+
+    to_date_end = datetime(2016, 1, 1)
+    from_date = datetime(2016, 7, 27)
+    while from_date > to_date_end:
+
+        to_date = from_date - timedelta(1)
+
+        print('{0} - {1}'.format(from_date.strftime('%Y-%m-%d'), to_date.strftime('%Y-%m-%d')))
+
+        search_params = {'keyword': 'dengue', \
+                         'since': to_date.strftime('%Y-%m-%d'), \
+                         'until': from_date.strftime('%Y-%m-%d'), \
+                         'location': 'Alta Floresta, Brazil', \
+                         'radius': '3000km', \
+                         'max_tweets': 9999}
+
+        tote.search_and_collect_tweets(search_params, file_name)
+
+        from_date = from_date - timedelta(1)
