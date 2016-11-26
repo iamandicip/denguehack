@@ -81,7 +81,7 @@ class TwitterDataSearcher:
                 ids.append(self.last_id)
         except:
             ids.append(self.last_id)
-            print('There are 0 already saved tweets in file {1}'.format(file_name))
+            print('There are 0 already saved tweets in file {0}'.format(file_name))
 
         print(ids)
         return ids
