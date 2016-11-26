@@ -10,3 +10,5 @@ le/*.csv
 *.pyc
 
 *.pyc
+
+*.ipynb
