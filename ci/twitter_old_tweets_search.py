@@ -95,7 +95,7 @@ class TwitterOldTweetsExtractor:
 
 if __name__ == '__main__':
 
-    file_name = 'tweets_until_09.csv'
+    file_name = 'tweets_03_06.csv'
 
     tote = TwitterOldTweetsExtractor()
 
@@ -103,8 +103,8 @@ if __name__ == '__main__':
     # dates = [str(ts.date) for ts in rng]
     # print(rng)
 
-    to_date_end = datetime(2016, 1, 1)
-    from_date = datetime(2016, 7, 27)
+    to_date_end = datetime(2015, 3, 1)
+    from_date = datetime(2016, 5, 27)
     while from_date > to_date_end:
 
         to_date = from_date - timedelta(1)
