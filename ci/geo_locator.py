@@ -1,13 +1,15 @@
 
 from geopy.geocoders import Nominatim
+from geopy.geocoders import GeoNames
 
 class GeoLocator:
 
     def get_coordinates_for_location(self, location_name):
         result = None
 
-        geolocator = Nominatim()
-        location = geolocator.geocode(location_name)
+        # geolocator = Nominatim()
+        geolocator = GeoNames(timeout=10, username='iamandicip')
+        location = geolocator.geocode(location_name, exactly_one=True)
 
         # print(dir(location))
 
