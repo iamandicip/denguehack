@@ -9,8 +9,12 @@ library(stream)
 #don't forget to set your working directory (Session->Set Working Directory)
 
 
-twitterData = read.csv("tweets_south_america_dengue_09-11 2.csv", stringsAsFactors=FALSE)
+#twitterData = read.csv("tweets_south_america_dengue_09-11 2.csv", stringsAsFactors=FALSE)
+#twitterData = twitterData[nrow(twitterData):1, ]
+
+twitterData = read.csv("bra_jan_tweets.csv", stringsAsFactors=FALSE)
 twitterData = twitterData[nrow(twitterData):1, ]
+
 tweetDate = as.data.frame(twitterData[, "date"])
 tweetCoor = twitterData[, c("long","lat")]
 
@@ -46,8 +50,6 @@ tweetCoor = twitterData[, c("long","lat")]
 # }
 
 
-
-
 stream <- DSD_Memory(tweetCoor) # used to perform the clustering on
 streamCopy <- DSD_Memory(tweetCoor) # used to figure out the resulting assignments 
 streamCopy2 <- DSD_Memory(tweetCoor)
@@ -56,39 +58,43 @@ streamCopy2 <- DSD_Memory(tweetCoor)
 # animation::ani.options(interval = 0.1)
 # saveHTML(ani.replay())
 
+timespan_symptoms = 7 * 24 * 60 # concept of "half-life", days in minutes
+data_period = 22 * 24 * 60 #days in minutes 
+total_tweets = nrow(twitterData)
+av_tweets_per_minute = total_tweets / data_period 
+number_of_events_in_timespan = timespan_symptoms * av_tweets_per_minute 
+lambda =  number_of_events_in_timespan
 
-dstream <-DSC_DStream(gridsize=5, Cm = 5, lambda = 0.001)
-#update(dstream, stream, n = 100)
-#dstream
+dstream <-DSC_DStream(gridsize=2, Cm = 1,  0.00001 *  lambda)
 
 
-frames = 6
+
+frames = 1
 op <- par(no.readonly = TRUE)
-layout(mat = matrix(1:frames, ncol = 2))
-reset_stream(stream)
-total_tweets = 2200
+layout(mat = matrix(1:frames, ncol = 3))
 n = ceiling(total_tweets/frames)
 for(frame in c(1:frames)) {
-  
+    
   update(dstream, stream, n )
-  plot(dstream, streamCopy, n, type = "micro", assignment=TRUE)
+  plot(dstream, streamCopy, n, type = "micro")
   
   centers = get_centers(dstream, type="micro")
   weights = get_weights(dstream, type="micro")
-  clusters_df <- data.frame(centers,weights)
-  names(clusters_df) <- c("long","lat", "weight")
+  n_clusters = nrow(centers)
+  clusterStart = rep(twitterData[((frame-1)*n) + 1, "date"], n_clusters) 
+  clusterEnd = rep(twitterData[(frame*n), "date"], n_clusters)
+  clusters_df <- data.frame(centers,weights, clusterStart, clusterEnd)
+  names(clusters_df) <- c("lon","lat", "weight", "clusterStart", "clusterEnd")
   
   points = get_points(streamCopy2, n)
   timestamps = as.data.frame(tweetDate[(((frame-1)*n) + 1) : (frame*n), 1])
+  
   clusterStart = rep(twitterData[((frame-1)*n) + 1, "date"], n) 
   clusterEnd = rep(twitterData[(frame*n), "date"], n)
   
-  print(clusterEnd)
-  print(nrow(clusterEnd))
-  
   assignments = get_assignment(dstream, points, type="micro", method = "model")  
   tweets_df <- data.frame(assignments, timestamps, points, clusterStart, clusterEnd)
-  names(tweets_df) <- c("assigned_to_cluster", "timestamp", "long", "lat", "clusterStart", "clusterEnd")
+  names(tweets_df) <- c("assigned_to_cluster", "timestamp", "lon", "lat", "clusterStart", "clusterEnd")
   
   write.csv(clusters_df, file = paste(as.character(frame),"_centers.csv"))
   write.csv(tweets_df, file = paste(as.character(frame),"_tweets.csv"))
