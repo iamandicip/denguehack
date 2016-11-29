@@ -10,6 +10,7 @@ https://denguehack.org/
  * Laszlo Kupcsik
  * Laurent Exsteens
  * Sabrina Trifi
+ 
  There is a folder for each member, named with their initials.
  Each member should add their code to the respective folder.
  We choose this solution mainly because each one of us will be exploring different solutions.
